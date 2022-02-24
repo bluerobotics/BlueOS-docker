@@ -98,6 +98,10 @@ docker --version || curl -fsSL https://get.docker.com | env -u VERSION sh || (
 )
 systemctl enable docker
 
+# Add user to 'docker' group allowing docker commands without root privilegies
+echo "Adding default user to 'docker' group."
+usermod -aG docker $USER
+
 # Stop and remove all docker if NO_CLEAN is not defined
 test $NO_CLEAN || (
     # Check if there is any docker installed
