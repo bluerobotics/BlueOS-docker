@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="pt-1 pb-1">
     <div  v-for="(parameters, section) in filtered_params">
       <v-sheet class="ma-5">
         <v-card-title>{{ section }}</v-card-title>
@@ -13,7 +13,8 @@
           <v-text-field
             label="Current value"
             :value="`${printParam(param)} ${param.units ?? ''}`"
-            disabled
+            append-icon="mdi-pencil"
+            @click:append="param.edit = true"
           ></v-text-field>  
         </v-card-actions>
       </v-card>
