@@ -1,5 +1,6 @@
 <template>
   <v-card outline class="pa-5 mt-4 mr-2 mb-2">
+    <v-card-title>Board Orientation</v-card-title>
     <v-select
       v-model="selectedRotation"
       class="orientation-selector"

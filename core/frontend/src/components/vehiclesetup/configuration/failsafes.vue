@@ -4,18 +4,20 @@
       <v-sheet class="ma-5">
         <v-card-title>{{ section }}</v-card-title>
         <div  class="d-flex d-col flex-wrap">
-      <v-card elevation="2" v-for="param in parameters" class="ma-2" min-width="200px" max-width="250px">
+      <v-card elevation="2" v-for="param in parameters" class="ma-2 d-flex flex-column" min-width="200px" max-width="250px">
         <v-card-title> {{ param.name }}</v-card-title>
         <v-card-text>
           {{ param.description }}
         </v-card-text>
+        <div class="flex-grow-1"></div>
         <v-card-actions>
           <v-text-field
             label="Current value"
             :value="`${printParam(param)} ${param.units ?? ''}`"
-            append-icon="mdi-pencil"
-            @click:append="param.edit = true"
+            
+            disabled
           ></v-text-field>  
+          <v-btn small><v-icon>mdi-pencil</v-icon></v-btn>
         </v-card-actions>
       </v-card>
     </div>
