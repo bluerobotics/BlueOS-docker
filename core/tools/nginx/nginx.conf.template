@@ -135,7 +135,7 @@ http {
         location ^~ /logviewer {
             # ^~ makes this a higher priority than locations with regex
             expires 10d;
-            root /var/www/html;
+            root /home/pi/tools;
         }
 
         location /mavlink2rest {
@@ -217,12 +217,6 @@ http {
             autoindex on;
             # allow frontend to see files using json
             autoindex_format json;
-
-            # prevent caching of index.html
-            if ($uri = /index.html) {
-                add_header Last-Modified "";
-                add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
-            }
         }
 
         location /assets/ {

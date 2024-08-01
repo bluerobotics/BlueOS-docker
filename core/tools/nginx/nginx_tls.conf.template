@@ -41,8 +41,22 @@ http {
     }
 
     server {
-        listen 80;
-        listen [::]:80;
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+	    server_name _;
+	    return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl http2;
+        listen [::]:443 ssl http2;
+
+        server_name _;
+	    ssl_certificate blueos.crt;
+	    ssl_certificate_key blueos.key;
+	    ssl_protocols TLSv1.2 TLSv1.3;
+	    ssl_ciphers HIGH:!aNULL:!MD5;
 
         add_header Access-Control-Allow-Origin *;
 
@@ -135,7 +149,7 @@ http {
         location ^~ /logviewer {
             # ^~ makes this a higher priority than locations with regex
             expires 10d;
-            root /var/www/html;
+            root /home/pi/tools;
         }
 
         location /mavlink2rest {
@@ -217,12 +231,6 @@ http {
             autoindex on;
             # allow frontend to see files using json
             autoindex_format json;
-
-            # prevent caching of index.html
-            if ($uri = /index.html) {
-                add_header Last-Modified "";
-                add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
-            }
         }
 
         location /assets/ {
