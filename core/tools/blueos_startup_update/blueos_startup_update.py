@@ -8,6 +8,7 @@ import time
 from typing import List, Tuple
 
 import appdirs
+from boot.pi5overlays import load_pi5_overlays_in_runtime
 from commonwealth.utils.commands import run_command, save_file, locate_file, load_file
 from commonwealth.utils.general import CpuType, HostOs, get_cpu_type, get_host_os
 from commonwealth.utils.logs import InterceptHandler, init_logger
@@ -36,6 +37,7 @@ DELTA_JSON = {
             "/usr/blueos/extensions": {"bind": "/usr/blueos/extensions", "mode": "rw"},
             "/usr/blueos/userdata": {"bind": "/usr/blueos/userdata", "mode": "rw"},
             "/var/run/wpa_supplicant": {"bind": "/var/run/wpa_supplicant", "mode": "rw"},
+            "/var/run/dbus": {"bind": "/var/run/dbus", "mode": "rw"},
         }
     }
 }
@@ -388,6 +390,20 @@ def ensure_user_data_structure_is_in_place() -> bool:
     return False
 
 
+def build_led_overlay():
+    overlay_exists = locate_file(["/boot/overlays/spi0-led.dtbo", "/boot/firmware/overlays/spi0-led.dtbo"])
+    if overlay_exists:
+        logger.info(f"spi0-led overlay found at {overlay_exists}")
+        return False
+    with open("/install/spi0-led.dts", "r", encoding="utf-8") as f:
+        dts = f.read()
+        save_file("/tmp/spi0-led.dts", dts, "")
+    command = "sudo dtc -@ -Hepapr -I dts -O dtb -o /boot/overlays/spi0-led.dtbo /tmp/spi0-led.dts && sudo cp /boot/overlays/spi0-led.dtbo /boot/firmware/overlays/spi0-led.dtbo"
+    logger.info(run_command(command, False))
+    # we should be able to load the just-built overlay, no need to restart
+    return False
+
+
 def run_command_is_working():
     output = run_command("uname -a", check=False)
     if output.returncode != 0:
@@ -447,8 +463,15 @@ def main() -> int:
     if host_cpu == CpuType.PI4 or CpuType.PI5:
         patches_to_apply.extend(
             [
+                build_led_overlay,
                 update_cgroups,
                 update_dwc2,
+            ]
+        )
+    if host_cpu == CpuType.PI5:
+        patches_to_apply.extend(
+            [
+                load_pi5_overlays_in_runtime,
             ]
         )
 
