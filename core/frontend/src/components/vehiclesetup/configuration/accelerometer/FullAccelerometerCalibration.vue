@@ -3,6 +3,7 @@
     v-model="dialog"
     persistent
     width="500"
+    @click:outside="cleanup"
   >
     <template #activator="{ on, attrs }">
       <v-btn
