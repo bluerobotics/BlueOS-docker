@@ -8,7 +8,27 @@
       return-object
       :item-text="'name'"
     />
-    <div ref="threemount" class="threejsmount" />
+    <div class="threejs-container">
+      <div ref="threemount" class="threejsmount" />
+      <div class="control-overlay">
+          <v-btn
+            :color="transformMode === 'rotate' ? 'primary' : ''"
+            @click="setTransformMode('rotate')"
+            small
+          >
+            <v-icon>mdi-rotate-3d</v-icon>
+            Rotate
+          </v-btn>
+          <v-btn
+            :color="transformMode === 'translate' ? 'primary' : ''"
+            @click="setTransformMode('translate')"
+            small
+          >
+            <v-icon>mdi-arrow-all</v-icon>
+            Move
+          </v-btn>
+      </div>
+    </div>
   </v-card>
 </template>
 
@@ -59,6 +79,7 @@ export default {
   data() {
     return {
       transformControls: undefined as TransformControls | undefined,
+      transformMode: 'rotate' as 'rotate' | 'translate',
       rotations: [
         new Rotation('NONE', 0, 0, 0),
         new Rotation('YAW_45', 0, 0, 45),
@@ -147,6 +168,9 @@ export default {
     selectedRotation(rotation) {
       this.rotateObject(rotation)
     },
+    selectedRotation(rotation) {
+      this.rotateObject(rotation)
+    },
   },
   mounted() {
     const scene = new THREE.Scene()
@@ -199,8 +223,8 @@ export default {
       orbitControls.enabled = true
     })
     
-    this.transformControls.setMode('translate')
-    this.transformControls.setSpace('local')
+    this.transformControls.setMode(this.transformMode)
+    this.transformControls.setSpace('global')
     scene.add(this.transformControls)
     const animate = () : void => {
       requestAnimationFrame(animate)
@@ -220,6 +244,12 @@ export default {
     window.removeEventListener('resize', this.resize)
   },
   methods: {
+    setTransformMode(mode: 'rotate' | 'translate') {
+      this.transformMode = mode
+      if (this.transformControls) {
+        this.transformControls.setMode(mode)
+      }
+    },
     rotateObject(rotation: Rotation | undefined) {
       if (!rotation) {
         return
@@ -332,11 +362,11 @@ export default {
 
 div.threejsmount {
   width: 100%;
-  height: 300px;
+  height: 500px;
 }
 
 .orientation-selector {
-  width: 350px;
+  width: 600px;
 }
 
 </style>
