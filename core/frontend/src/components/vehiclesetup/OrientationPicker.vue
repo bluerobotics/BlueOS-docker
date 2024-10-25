@@ -179,29 +179,31 @@ export default {
     scene.background = new THREE.Color(0xffffff)
 
     // Add arrows for the x, y, and z axes
-    const arrowHelperX = new THREE.ArrowHelper(new THREE.Vector3(0.1, 0, 0), new THREE.Vector3(0, 0, 0), 0.1, 0xff0000)
+    const arrowHelperX = new THREE.ArrowHelper(new THREE.Vector3(0.1, 0, 0), new THREE.Vector3(0, 0, 0), 0.1, 0xffaaaa)
     this.arrows.push(arrowHelperX)
     scene.add(arrowHelperX)
 
-    const arrowHelperY = new THREE.ArrowHelper(new THREE.Vector3(0, 5, 0), new THREE.Vector3(0, 0, 0), 0.1, 0x00ff00)
+    const arrowHelperY = new THREE.ArrowHelper(new THREE.Vector3(0, 5, 0), new THREE.Vector3(0, 0, 0), 0.1, 0xaaffaa)
     scene.add(arrowHelperY)
     this.arrows.push(arrowHelperY)
 
-    const arrowHelperZ = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 5), new THREE.Vector3(0, 0, 0), 0.1, 0x0000ff)
+    const arrowHelperZ = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 5), new THREE.Vector3(0, 0, 0), 0.1, 0xaaaaff)
     scene.add(arrowHelperZ)
     this.arrows.push(arrowHelperZ)
     // Add TransformControls
     this.transformControls = new TransformControls(this.camera, this.renderer.domElement)
-    this.transformControls.addEventListener('objectChange', (event) => {
-      console.log(this.object.rotation.x)
-      orbitControls.enabled = !event.value
+    this.transformControls.addEventListener('mouseDown', (event) => {
+      orbitControls.enabled = false
     })
-    this.transformControls.setMode('rotate')
+    this.transformControls.addEventListener('mouseUp', (event) => {
+      orbitControls.enabled = true
+    })
+    
+    this.transformControls.setMode('translate')
     this.transformControls.setSpace('local')
     scene.add(this.transformControls)
     const animate = () : void => {
       requestAnimationFrame(animate)
-      orbitControls.update()
       if (!this.renderer) {
         return
       }
@@ -238,8 +240,36 @@ export default {
       }
     },
     add_vehicle_model() {
-      // ... (keep existing method)
-    },
+      if (this.scene) {
+        const dracoLoader = new DRACOLoader()
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/')
+        const loader = new GLTFLoader()
+        loader.setDRACOLoader(dracoLoader)
+        loader.load(
+          this.vehicle_model,
+          (gltf) => {
+            gltf.scene.traverse((child) => {
+              if (child instanceof THREE.Mesh) {
+                child.material = new THREE.MeshStandardMaterial({
+                  color: 0x666666, // white
+                  transparent: true,
+                  opacity: 0.05,
+                  depthTest: false,
+                  depthWrite: true,
+                  side: THREE.DoubleSide, // Set material to be double-sided
+                })
+              }
+            })
+            this.vehicle_obj = gltf.scene
+            this.scene.add(gltf.scene)
+          },
+          undefined,
+          (error) => {
+            console.error('An error occurred while loading the GLB model:', error)
+          },
+        )
+      }
+    }, 
     async add_board_model() {
       if (this.scene) {
         const dracoLoader = new DRACOLoader()
