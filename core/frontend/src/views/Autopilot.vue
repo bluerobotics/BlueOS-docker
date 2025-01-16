@@ -73,7 +73,7 @@
           Change board
         </v-btn>
         <v-btn
-          v-if="settings.is_pirate_mode"
+          v-if="settings.is_pirate_mode && board_supports_start_stop"
           class="ma-1"
           :block="$vuetify.breakpoint.xs"
           color="secondary"
@@ -83,7 +83,7 @@
           Start autopilot
         </v-btn>
         <v-btn
-          v-if="settings.is_pirate_mode"
+          v-if="settings.is_pirate_mode && board_supports_start_stop"
           class="ma-1"
           :block="$vuetify.breakpoint.xs"
           color="secondary"
@@ -93,6 +93,7 @@
           Stop autopilot
         </v-btn>
         <v-btn
+          v-if="settings.is_pirate_mode && board_supports_restart"
           color="primary"
           class="ma-1"
           :block="$vuetify.breakpoint.xs"
@@ -156,6 +157,13 @@ export default Vue.extend({
     }
   },
   computed: {
+    board_supports_start_stop(): boolean {
+      return this.current_board?.name !== 'Unmanaged'
+    },
+    board_supports_restart(): boolean {
+      // this is a mavlink command, all boards should support it
+      return true
+    },
     autopilot_info(): Record<string, string> {
       let version = 'Unknown'
       if (this.firmware_info) {
