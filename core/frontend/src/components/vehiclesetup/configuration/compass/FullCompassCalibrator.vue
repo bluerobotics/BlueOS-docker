@@ -78,7 +78,12 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn v-if="state !== states.CALIBRATING" color="primary" :disabled="!compass_mask" @click="calibrate()">
+        <v-btn
+          v-if="state !== states.CALIBRATING"
+          color="primary"
+          :disabled="!compass_mask || !coordinates"
+          @click="calibrate()"
+        >
           Calibrate
         </v-btn>
         <v-btn v-if="state === states.DONE" color="primary" @click="dismiss">
